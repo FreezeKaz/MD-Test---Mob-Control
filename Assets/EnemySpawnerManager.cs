@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -10,18 +10,19 @@ public class EnemySpawnerManager : MonoBehaviour
     [SerializeField] public GameObject Mob;
 
     [Header("Spawn Settings")]
-    public int minCount = 3;
-    public int maxCount = 10;
-    public float spawnDelay = 2f;
-
+    public int enemyCount = 10;
+    public bool useXAxis = true;
+    public float spawnDelay = 0.3f;
+    public float randomOffset = 0.5f;
     private float spawnTimer;
 
     Bounds bounds;
     public void Start()
     {
-        Spawn();
+     
         spawnTimer = spawnDelay;
         bounds = boxCollider.bounds;
+        Spawn();
     }
 
     private void Update()
@@ -38,26 +39,31 @@ public class EnemySpawnerManager : MonoBehaviour
     {
 
 
-        int mobCount = Random.Range(minCount, maxCount + 1);
 
-        for (int i = 0; i < mobCount; i++)
+        for (int i = 0; i < enemyCount; i++)
         {
-            Vector3 randomPos = GetRandomPointInBox(boxCollider);
-            GameObject temp = Instantiate(Mob, randomPos, SpawnArea.rotation);
-            temp.GetComponent<CharacterBrain>().Init(0f, true, false);
+            float t = (float)i / (enemyCount - 1);
+
+            Vector3 spawnPos = Vector3.zero;
+
+            if (useXAxis)
+            {
+                // Line goes left ↔ right (X axis)
+                float x = Mathf.Lerp(bounds.min.x, bounds.max.x, t);
+                float z = Random.Range(bounds.min.z, bounds.max.z); // small wiggle in depth
+                spawnPos = new Vector3(x, bounds.center.y, z);
+            }
+
+            spawnPos += new Vector3(
+               Random.Range(-randomOffset, randomOffset),
+               0f,
+               Random.Range(-randomOffset, randomOffset)
+           );
+            GameObject temp = Instantiate(Mob, spawnPos, SpawnArea.rotation);
+            temp.GetComponent<CharacterBrain>().Init(0f, false, false);
         }
-    }
 
 
-    Vector3 GetRandomPointInBox(BoxCollider box)
-    {
-        Vector3 center = box.center + box.transform.position;
-        Vector3 size = box.size;
 
-        float randomX = Random.Range(-size.x / 2f, size.x / 2f);
-        float randomY = Random.Range(-size.y / 2f, size.y / 2f);
-        float randomZ = Random.Range(-size.z / 2f, size.z / 2f);
-
-        return center + box.transform.rotation * new Vector3(randomX, randomY, randomZ);
     }
 }

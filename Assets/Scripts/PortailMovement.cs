@@ -18,7 +18,7 @@ public class PortailMovement : MonoBehaviour
     void Awake()
     {
        
-        string display = "x " + amount;
+        string display = "X" + amount;
         multiplier.text = display;
     }
     void Update()

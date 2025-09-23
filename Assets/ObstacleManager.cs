@@ -9,6 +9,7 @@ public class ObstacleManager : MonoBehaviour
     private Vector3 baseScale = Vector3.one;
     [SerializeField] public Transform parentTransform;
     [SerializeField] public TextMeshPro textMesh;
+    [SerializeField] public GameObject Particle;
     // Start is called before the first frame update
     void Start()
     {
@@ -18,12 +19,19 @@ public class ObstacleManager : MonoBehaviour
 
     public void OnHit()
     {
+        
         value--;
+
         textMesh.text = value.ToString();
         parentTransform.DOKill();
         parentTransform.localScale = baseScale; // reset to normal
-
         parentTransform.DOPunchScale(new Vector3(0.2f, 0.2f, 0.2f), 0.3f, 1, 0.2f);
+        if (value < 0)
+        {
+            Particle.gameObject.SetActive(true);
+            gameObject.SetActive(false);
+
+        }
     }
     // Update is called once per frame
     void Update()

@@ -36,9 +36,9 @@ public class PipeManager : MonoBehaviour
         Rigidbody rb = temp.GetComponent<Rigidbody>();
         if (rb != null)
         {
-          
-            rb.velocity = exitFirePoint.forward * characSpeed;
-            rb.velocity = new Vector3(2, 0, rb.velocity.z);
+
+
+            rb.constraints &= ~RigidbodyConstraints.FreezePositionX;
 
         }
         exitTransform.DOKill();
@@ -48,6 +48,6 @@ public class PipeManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }

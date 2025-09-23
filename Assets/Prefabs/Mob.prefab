@@ -120,10 +120,23 @@ MonoBehaviour:
   EnemyLayer:
     serializedVersion: 2
     m_Bits: 4096
+  CastleLayer:
+    serializedVersion: 2
+    m_Bits: 16384
+  PortalLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  DirectionChanger:
+    serializedVersion: 2
+    m_Bits: 32768
+  CanonLayer:
+    serializedVersion: 2
+    m_Bits: 65536
   animator: {fileID: 3270577038284169448}
   MobMaterial: {fileID: 2100000, guid: b099eb859f8033a4c9602e3cbef83206, type: 2}
   render: {fileID: 2651879895664736572}
   myCollider: {fileID: 2724742596317340660}
+  smokePart: {fileID: 329778574374759045, guid: 524fb3567785a2047a7c2f4afe174dd3, type: 3}
   minDistance: 0.5
   unitLayer:
     serializedVersion: 2

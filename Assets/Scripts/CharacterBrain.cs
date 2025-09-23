@@ -20,10 +20,15 @@ public class CharacterBrain : MonoBehaviour
     [SerializeField] private LayerMask DeadLayer;
     [SerializeField] private LayerMask PipeLayer;
     [SerializeField] private LayerMask EnemyLayer;
+    [SerializeField] private LayerMask CastleLayer;
+    [SerializeField] private LayerMask PortalLayer;
+    [SerializeField] private LayerMask DirectionChanger;
+    [SerializeField] private LayerMask CanonLayer;
     [SerializeField] private Animator animator;
     [SerializeField] private Material MobMaterial;
     [SerializeField] private SkinnedMeshRenderer render;
     [SerializeField] private Collider myCollider;
+    [SerializeField] private GameObject smokePart;
 
     [SerializeField] private float minDistance = 0.5f; // security distance
     public LayerMask unitLayer;
@@ -42,14 +47,27 @@ public class CharacterBrain : MonoBehaviour
     void Update()
     {
 
-        if (HasTOuchedFloor && !Enemy && !Died)
+
+        if (CameFromPipe && !Died)
         {
-            rb.velocity = new Vector3(0, 0, 7f);
+            rb.velocity = new Vector3(-5, 0, 7f);
+            Debug.Log(rb.velocity);
         }
-        if(Enemy && !Died)
-            rb.velocity = new Vector3(0, 0, -7f);
-        if (Died)
-            rb.velocity = Vector3.zero;
+
+        else
+        {
+
+
+            if (HasTOuchedFloor && !Enemy && !Died) rb.velocity = new Vector3(0, 0, 7f);
+
+
+
+
+            if (Enemy && !Died) rb.velocity = new Vector3(0, 0, -3.85f);
+
+            if (Died) rb.velocity = Vector3.zero;
+
+        }
     }
 
     public IEnumerator Activate()
@@ -60,28 +78,40 @@ public class CharacterBrain : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-
-        if (!HasAlreadyMultiplied && CanMultiply && !Enemy)
+        if (((1 << other.gameObject.layer) & portalLayer) != 0)
         {
-            HasAlreadyMultiplied = true;
-            for (int i = 0; i < other.gameObject.GetComponentInParent<PortailMovement>().amount - 1; i++)
+            if (!HasAlreadyMultiplied && CanMultiply && !Enemy)
             {
-                Vector3 spawnPos = transform.position + new Vector3(Random.Range(-0.5f, 0.5f), 0, Random.Range(-0.5f, 0.5f));
-                GameObject tempGO = Instantiate(gameObject, spawnPos, transform.rotation);
-                Rigidbody tempRb = tempGO.GetComponent<Rigidbody>();
-                CharacterBrain tempCB = tempGO.GetComponent<CharacterBrain>();
-                tempCB.Init(0.6f, false, true);
-                tempRb.velocity = rb.velocity;
-                Debug.Log(tempRb.velocity);
-                tempCB.reducedVelocity = tempRb.velocity;
+                HasAlreadyMultiplied = true;
+                for (int i = 0; i < other.gameObject.GetComponentInParent<PortailMovement>().amount - 1; i++)
+                {
+                   
+                    Vector3 spawnPos = transform.position + new Vector3(Random.Range(-0.5f, 0.5f), 0, Random.Range(-0.5f, 0.5f));
+                    GameObject tempGO = Instantiate(gameObject, spawnPos, transform.rotation);
+                    Instantiate(smokePart, transform.position, Quaternion.identity);
+                    Rigidbody tempRb = tempGO.GetComponent<Rigidbody>();
+                    CharacterBrain tempCB = tempGO.GetComponent<CharacterBrain>();
+                    tempCB.Init(0.6f, false, true);
+                    tempRb.velocity = rb.velocity;
+                    Debug.Log(tempRb.velocity);
+                    tempCB.reducedVelocity = tempRb.velocity;
+                }
             }
+
+        }
+        if (((1 << other.gameObject.layer) & DirectionChanger) != 0)
+        {
+            Debug.Log("Direciton");
+            rb.constraints &= ~RigidbodyConstraints.FreezePositionX;
+            transform.rotation = Quaternion.Euler(0, -45f, 0);
+            CameFromPipe = true;
         }
 
 
     }
     void OnCollisionEnter(Collision collision)
     {
-        if(!Enemy)
+        if (!Enemy)
         {
             if (((1 << collision.gameObject.layer) & floorLayer) != 0)
             {
@@ -120,15 +150,32 @@ public class CharacterBrain : MonoBehaviour
                     Debug.Log(collision.gameObject.GetComponent<CharacterBrain>().Enemy);
                     Die();
                 }
-                
+
             }
+            if (((1 << collision.gameObject.layer) & CastleLayer) != 0)
+            {
+                if (gameObject.layer != LayerMask.NameToLayer("Dead"))
+                {
+                    gameObject.layer = LayerMask.NameToLayer("Dead");
+                    collision.gameObject.GetComponent<SpawnerLifeManager>().OnSpawnerHit();
+                    StartCoroutine(WaitBeforeDie());
+                }
+            }
+
         }
-       
+        if (((1 << collision.gameObject.layer) & CanonLayer) != 0)
+        {
+
+                gameObject.layer = LayerMask.NameToLayer("Dead");
+                collision.gameObject.GetComponent<CanonManager>().OnHit();
+                Die();
+
+        }
     }
 
     public void Die()
     {
-        
+
         Died = true;
         animator.SetBool("Die", true);
         StartCoroutine(WaitBeforeDestroy());
@@ -141,7 +188,7 @@ public class CharacterBrain : MonoBehaviour
     public IEnumerator WaitBeforeDie()
     {
         Died = true;
-yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.2f);
         animator.SetBool("Die", true);
         yield return new WaitForSeconds(1f);
         Destroy(gameObject);

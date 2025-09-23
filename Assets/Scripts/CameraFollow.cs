@@ -3,11 +3,16 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    public Transform target;         // Your cannon
-    public Vector3 offset;           // Initial offset while following
-    public Vector3 secondOffset;     // Where the camera should end up
-    public float smoothSpeed = 0.125f;   // Smooth follow speed while following
-    public float transitionSpeed = 1f;   // How fast it moves to secondOffset
+    public Transform target;        
+    private Vector3 offset;           
+    public Vector3 desiredFinalPos;    
+    public Vector3 desiredRotation;
+
+    public Vector3 saveBasePlace;    
+    public Vector3 saveBaseRot;     
+                                      
+    public float smoothSpeed = 0.125f;   
+    public float transitionSpeed = 1f;   
 
     private Vector3 basePos;
     private bool isTransitioning = false;
@@ -15,7 +20,7 @@ public class CameraFollow : MonoBehaviour
 
     void Start()
     {
-        basePos = target.position;
+        offset = transform.position - target.position;
         StartCoroutine(StartTransition());
     }
    
@@ -29,25 +34,26 @@ public class CameraFollow : MonoBehaviour
     void LateUpdate()
     {
         if (transitionDone)
-            return; // Do nothing after transition, camera stays in place
+            return;
 
         if (!isTransitioning)
         {
-            // Follow cannon normally before 3 seconds
             Vector3 desiredPosition = target.position + offset;
             transform.position = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
         }
         else
         {
-            // Smoothly move to secondOffset
-            Vector3 targetPos = basePos + secondOffset;
-            transform.position = Vector3.Lerp(transform.position, targetPos, transitionSpeed * Time.deltaTime);
+           
+            transform.position = Vector3.Lerp(transform.position, desiredFinalPos, transitionSpeed * Time.deltaTime);
+            Quaternion targetRotation = Quaternion.Euler(desiredRotation);
+            transform.rotation = Quaternion.Lerp(transform.rotation,targetRotation,transitionSpeed * Time.deltaTime);
 
-            // Stop transitioning once close enough
-            if (Vector3.Distance(transform.position, targetPos) < 0.01f)
+  
+            if (Vector3.Distance(transform.position, desiredFinalPos) < 0.01f && Quaternion.Angle(transform.rotation, targetRotation) < 0.5f)
             {
-                transform.position = targetPos;
-                transitionDone = true; // Camera now stays here
+                transform.position = desiredFinalPos;
+                transform.rotation = targetRotation;
+                transitionDone = true;
             }
         }
     }

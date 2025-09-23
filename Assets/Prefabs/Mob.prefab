@@ -137,6 +137,12 @@ MonoBehaviour:
   render: {fileID: 2651879895664736572}
   myCollider: {fileID: 2724742596317340660}
   smokePart: {fileID: 329778574374759045, guid: 524fb3567785a2047a7c2f4afe174dd3, type: 3}
+  audioClips:
+  - {fileID: 8300000, guid: f306d185bc3609344876b63d05622de0, type: 3}
+  - {fileID: 8300000, guid: 4090675ff5673df4c84c7a3554dde58b, type: 3}
+  - {fileID: 8300000, guid: 2642164b9911b3441b2a84c242628a61, type: 3}
+  - {fileID: 8300000, guid: 71c02f1ec917dfe43a2d36a1d0001ee7, type: 3}
+  - {fileID: 8300000, guid: 83bd2b5dcbab82e4c9d20058f0de76c2, type: 3}
   minDistance: 0.5
   unitLayer:
     serializedVersion: 2

@@ -3,9 +3,9 @@
 public class CannonController : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [SerializeField] public float moveSpeed = 10f;  
-    [SerializeField] public float minX = -8f;       
-    [SerializeField] public float maxX = 8f;       
+    [SerializeField] public float moveSpeed = 10f;
+    [SerializeField] public float minX = -8f;
+    [SerializeField] public float maxX = 8f;
 
 
     [SerializeField] public GameObject characPrefab; // c prefab
@@ -13,6 +13,7 @@ public class CannonController : MonoBehaviour
     [SerializeField] public float characSpeed = 10f; // How fast the character fly
     [SerializeField] public float fireRate = 0.5f;   // Time between shots
     [SerializeField] public Animator animator;
+    [SerializeField] public AudioSource sound;
 
     private float nextFireTime = 0f;
 
@@ -26,15 +27,20 @@ public class CannonController : MonoBehaviour
         if (Input.GetKey(KeyCode.Space))
         {
 
-            animator.SetBool("Shooting",true);
+            animator.SetBool("Shooting", true);
+            sound.enabled = true;
             if (Time.time >= nextFireTime)
             {
                 Shoot();
                 nextFireTime = Time.time + fireRate;
             }
         }
-        else 
-            animator.SetBool("Shooting",false);
+        else
+        {
+            animator.SetBool("Shooting", false);
+
+            sound.enabled = false;
+        }
 
 
         if (Input.GetMouseButton(0)) // left mouse held down

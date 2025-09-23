@@ -1,6 +1,8 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using static ToonyColorsPro.ShaderGenerator.Enums;
+using static Unity.VisualScripting.Member;
 
 public class CharacterBrain : MonoBehaviour
 {
@@ -30,10 +32,13 @@ public class CharacterBrain : MonoBehaviour
     [SerializeField] private Collider myCollider;
     [SerializeField] private GameObject smokePart;
 
+    [SerializeField] public List<AudioClip> audioClips; 
+
     [SerializeField] private float minDistance = 0.5f; // security distance
     public LayerMask unitLayer;
     public bool HasTOuchedFloor = false;
     public Vector3 reducedVelocity = Vector3.zero;
+    private float nextStepTime;
 
     public void Init(float time, bool pipe, bool floor)
     {
@@ -46,7 +51,6 @@ public class CharacterBrain : MonoBehaviour
     }
     void Update()
     {
-
 
         if (CameFromPipe && !Died)
         {
@@ -91,7 +95,7 @@ public class CharacterBrain : MonoBehaviour
                     Instantiate(smokePart, transform.position, Quaternion.identity);
                     Rigidbody tempRb = tempGO.GetComponent<Rigidbody>();
                     CharacterBrain tempCB = tempGO.GetComponent<CharacterBrain>();
-                    tempCB.Init(0.6f, false, true);
+                    tempCB.Init(0.2f, false, true);
                     tempRb.velocity = rb.velocity;
                     Debug.Log(tempRb.velocity);
                     tempCB.reducedVelocity = tempRb.velocity;
@@ -126,6 +130,8 @@ public class CharacterBrain : MonoBehaviour
             {
                 if (gameObject.layer != LayerMask.NameToLayer("Dead"))
                 {
+                    AudioManager.Instance.PlaySFX(audioClips[1], 0.07f);
+
                     gameObject.layer = LayerMask.NameToLayer("Dead");
                     Debug.Log("COlliding");
                     collision.gameObject.GetComponent<ObstacleManager>().OnHit();
@@ -135,6 +141,8 @@ public class CharacterBrain : MonoBehaviour
             }
             if (((1 << collision.gameObject.layer) & PipeLayer) != 0)
             {
+                AudioManager.Instance.PlaySFX(audioClips[4], 0.07f, 1.4f);
+
                 Destroy(gameObject);
                 collision.gameObject.GetComponent<PipeManager>().OnHit();
             }
@@ -143,6 +151,7 @@ public class CharacterBrain : MonoBehaviour
 
                 if (gameObject.layer != LayerMask.NameToLayer("Enemy") && gameObject.layer != LayerMask.NameToLayer("Dead"))
                 {
+                    AudioManager.Instance.PlaySFX(audioClips[1], 0.07f);
                     myCollider.enabled = false;
                     gameObject.layer = LayerMask.NameToLayer("Dead");
                     collision.gameObject.GetComponent<CharacterBrain>().Die();
@@ -154,8 +163,11 @@ public class CharacterBrain : MonoBehaviour
             }
             if (((1 << collision.gameObject.layer) & CastleLayer) != 0)
             {
+
                 if (gameObject.layer != LayerMask.NameToLayer("Dead"))
                 {
+                    //AudioManager.Instance.PlaySFX(audioClips[1], 0.07f);
+
                     gameObject.layer = LayerMask.NameToLayer("Dead");
                     collision.gameObject.GetComponent<SpawnerLifeManager>().OnSpawnerHit();
                     StartCoroutine(WaitBeforeDie());

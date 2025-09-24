@@ -33,28 +33,7 @@ public class CameraFollow : MonoBehaviour
 
     void LateUpdate()
     {
-        if (transitionDone)
-            return;
-
-        if (!isTransitioning)
-        {
             Vector3 desiredPosition = target.position + offset;
             transform.position = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
-        }
-        else
-        {
-           
-            transform.position = Vector3.Lerp(transform.position, desiredFinalPos, transitionSpeed * Time.deltaTime);
-            Quaternion targetRotation = Quaternion.Euler(desiredRotation);
-            transform.rotation = Quaternion.Lerp(transform.rotation,targetRotation,transitionSpeed * Time.deltaTime);
-
-  
-            if (Vector3.Distance(transform.position, desiredFinalPos) < 0.01f && Quaternion.Angle(transform.rotation, targetRotation) < 0.5f)
-            {
-                transform.position = desiredFinalPos;
-                transform.rotation = targetRotation;
-                transitionDone = true;
-            }
-        }
     }
 }

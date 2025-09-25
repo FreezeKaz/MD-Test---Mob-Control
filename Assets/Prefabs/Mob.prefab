@@ -132,11 +132,15 @@ MonoBehaviour:
   CanonLayer:
     serializedVersion: 2
     m_Bits: 65536
+  CannonTarget:
+    serializedVersion: 2
+    m_Bits: 131072
   animator: {fileID: 3270577038284169448}
   MobMaterial: {fileID: 2100000, guid: b099eb859f8033a4c9602e3cbef83206, type: 2}
   render: {fileID: 2651879895664736572}
   myCollider: {fileID: 2724742596317340660}
   smokePart: {fileID: 329778574374759045, guid: 524fb3567785a2047a7c2f4afe174dd3, type: 3}
+  cannonObject: {fileID: 0}
   audioClips:
   - {fileID: 8300000, guid: f306d185bc3609344876b63d05622de0, type: 3}
   - {fileID: 8300000, guid: 4090675ff5673df4c84c7a3554dde58b, type: 3}
@@ -316,6 +320,10 @@ PrefabInstance:
     - target: {fileID: 8672484744955087370, guid: f6bd6163c6164164196f3d2bf42170ff, type: 3}
       propertyPath: m_Layer
       value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8672484744955087370, guid: f6bd6163c6164164196f3d2bf42170ff, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8907754614429526353, guid: f6bd6163c6164164196f3d2bf42170ff, type: 3}
       propertyPath: m_Layer

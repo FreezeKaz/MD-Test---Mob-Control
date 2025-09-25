@@ -13,6 +13,7 @@ public class CannonController : MonoBehaviour
     [SerializeField] public float characSpeed = 10f; // How fast the character fly
     [SerializeField] public float fireRate = 0.5f;   // Time between shots
     [SerializeField] public Animator animator;
+    [SerializeField] public Animator whheels;
     [SerializeField] public AudioSource sound;
     [SerializeField] public GameObject particle;
 
@@ -48,9 +49,8 @@ public class CannonController : MonoBehaviour
 
         if (Input.GetMouseButton(0)) // left mouse held down
         {
+            whheels.SetBool("Move", true);
             Vector3 mousePos = Input.mousePosition;
-
-            // Convert mouse position to world coordinates
             Vector3 worldPos = Camera.main.ScreenToWorldPoint(
                 new Vector3(mousePos.x, mousePos.y, Camera.main.WorldToScreenPoint(transform.position).z)
             );
@@ -65,6 +65,8 @@ public class CannonController : MonoBehaviour
             // Smoothly move the cannon to the target X position
             transform.position = Vector3.Lerp(transform.position, targetPos, moveSpeed * Time.deltaTime);
         }
+        else
+            whheels.SetBool("Move", false);
     }
 
 

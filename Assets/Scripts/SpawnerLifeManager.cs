@@ -10,6 +10,9 @@ public class SpawnerLifeManager : MonoBehaviour
     [SerializeField] public Transform parentTransform;
     [SerializeField] public TextMeshPro text;
     [SerializeField] public float amount;
+    [SerializeField] public Vector3 ParticleSpawnPos;
+    [SerializeField] public Quaternion ParticleRotation;
+    [SerializeField] public GameObject Particle;
 
     private Vector3 baseScale;
     private Quaternion baseRotation;
@@ -17,6 +20,7 @@ public class SpawnerLifeManager : MonoBehaviour
 
     private void Start()
     {
+        ParticleRotation = new Quaternion(-0.685923874f, -0.171780273f, 0.171780303f, 0.685923874f);
         baseScale = parentTransform.localScale;
         baseRotation = parentTransform.rotation;
         text.text = amount.ToString();
@@ -25,6 +29,7 @@ public class SpawnerLifeManager : MonoBehaviour
     public void OnSpawnerHit()
     {
         amount--;
+        Instantiate(Particle, ParticleSpawnPos, ParticleRotation);
         text.text = amount.ToString();
         parentTransform.DOKill();
         parentTransform.localScale = baseScale; // reset to normal

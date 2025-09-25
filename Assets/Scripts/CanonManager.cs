@@ -11,7 +11,18 @@ public class CanonManager : MonoBehaviour
     public SkinnedMeshRenderer mesh;
     public Collider capCollider;
     public int Life = 20;
-    // Start is called before the first frame update
+
+    public static CanonManager instance;
+
+    private void Awake()
+    {
+        if(instance == null)
+            instance = this;
+        else
+            Destroy(this);
+
+        DontDestroyOnLoad(gameObject);
+    }
     private void Start()
     {
         baseScale = transform.localScale;

@@ -26,11 +26,13 @@ public class CharacterBrain : MonoBehaviour
     [SerializeField] private LayerMask PortalLayer;
     [SerializeField] private LayerMask DirectionChanger;
     [SerializeField] private LayerMask CanonLayer;
+    [SerializeField] private LayerMask CannonTarget;
     [SerializeField] private Animator animator;
     [SerializeField] private Material MobMaterial;
     [SerializeField] private SkinnedMeshRenderer render;
     [SerializeField] private Collider myCollider;
     [SerializeField] private GameObject smokePart;
+    [SerializeField] private GameObject cannonObject;
 
     [SerializeField] public List<AudioClip> audioClips; 
 
@@ -39,13 +41,14 @@ public class CharacterBrain : MonoBehaviour
     public bool HasTOuchedFloor = false;
     public Vector3 reducedVelocity = Vector3.zero;
     private float nextStepTime;
+    private bool cannonTarget = false;
 
     public void Init(float time, bool pipe, bool floor)
     {
         TimeBeforeActivation = time;
         CameFromPipe = pipe;
         HasTOuchedFloor = floor; ;
-
+        cannonObject = CanonManager.instance.gameObject;
         StartCoroutine(Activate());
 
     }
@@ -65,9 +68,16 @@ public class CharacterBrain : MonoBehaviour
             if (HasTOuchedFloor && !Enemy && !Died) rb.velocity = new Vector3(0, 0, 7f);
 
 
+            if(cannonTarget)
+            {
+                Vector3 direction = (cannonObject.transform.position - rb.position).normalized;
+                rb.AddForce(direction * 1f, ForceMode.Acceleration);
+                rb.constraints &= ~RigidbodyConstraints.FreezePositionX;
+                transform.LookAt(cannonObject.transform);
+                rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y, -2.85f);
+            }
 
-
-            if (Enemy && !Died) rb.velocity = new Vector3(0, 0, -3.85f);
+            if (Enemy && !Died && !cannonTarget) rb.velocity = new Vector3(0, 0, -3.85f);
 
             if (Died) rb.velocity = Vector3.zero;
 
@@ -109,6 +119,14 @@ public class CharacterBrain : MonoBehaviour
             rb.constraints &= ~RigidbodyConstraints.FreezePositionX;
             transform.rotation = Quaternion.Euler(0, -45f, 0);
             CameFromPipe = true;
+        }
+        if(Enemy)
+        {
+            if (((1 << other.gameObject.layer) & CannonTarget) != 0)
+            {
+                cannonTarget = true;
+            }
+
         }
 
 

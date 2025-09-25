@@ -16,6 +16,7 @@ public class CannonController : MonoBehaviour
     [SerializeField] public Animator whheels;
     [SerializeField] public AudioSource sound;
     [SerializeField] public GameObject particle;
+    [SerializeField] public GameObject loose;
 
     private float nextFireTime = 0f;
 
@@ -25,48 +26,57 @@ public class CannonController : MonoBehaviour
     {
 
 
-
-        if (Input.GetKey(KeyCode.Space))
+        if (!loose.gameObject.activeSelf)
         {
-            particle.SetActive(true);
-            animator.SetBool("Shooting", true);
-            sound.enabled = true;
-            if (Time.time >= nextFireTime)
+
+            if (Input.GetKey(KeyCode.Space))
             {
-                Shoot();
-                nextFireTime = Time.time + fireRate;
+                particle.SetActive(true);
+                animator.SetBool("Shooting", true);
+                sound.enabled = true;
+                if (Time.time >= nextFireTime)
+                {
+                    Shoot();
+                    nextFireTime = Time.time + fireRate;
+                }
             }
+            else
+            {
+                particle.SetActive(false);
+
+                animator.SetBool("Shooting", false);
+
+                sound.enabled = false;
+            }
+
+
+            if (Input.GetMouseButton(0)) // left mouse held down
+            {
+                whheels.SetBool("Move", true);
+                Vector3 mousePos = Input.mousePosition;
+                Vector3 worldPos = Camera.main.ScreenToWorldPoint(
+                    new Vector3(mousePos.x, mousePos.y, Camera.main.WorldToScreenPoint(transform.position).z)
+                );
+
+                // Keep Y and Z the same, only move X
+                Vector3 targetPos = new Vector3(
+                    Mathf.Clamp(worldPos.x, minX, maxX),
+                    transform.position.y,
+                    transform.position.z
+                );
+
+                // Smoothly move the cannon to the target X position
+                transform.position = Vector3.Lerp(transform.position, targetPos, moveSpeed * Time.deltaTime);
+            }
+            else
+                whheels.SetBool("Move", false);
         }
         else
         {
-            particle.SetActive(false);
-
+            whheels.SetBool("Move", false);
             animator.SetBool("Shooting", false);
-
             sound.enabled = false;
         }
-
-
-        if (Input.GetMouseButton(0)) // left mouse held down
-        {
-            whheels.SetBool("Move", true);
-            Vector3 mousePos = Input.mousePosition;
-            Vector3 worldPos = Camera.main.ScreenToWorldPoint(
-                new Vector3(mousePos.x, mousePos.y, Camera.main.WorldToScreenPoint(transform.position).z)
-            );
-
-            // Keep Y and Z the same, only move X
-            Vector3 targetPos = new Vector3(
-                Mathf.Clamp(worldPos.x, minX, maxX),
-                transform.position.y,
-                transform.position.z
-            );
-
-            // Smoothly move the cannon to the target X position
-            transform.position = Vector3.Lerp(transform.position, targetPos, moveSpeed * Time.deltaTime);
-        }
-        else
-            whheels.SetBool("Move", false);
     }
 
 

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using static ToonyColorsPro.ShaderGenerator.Enums;
 using static Unity.VisualScripting.Member;
 
@@ -33,8 +34,10 @@ public class CharacterBrain : MonoBehaviour
     [SerializeField] private Collider myCollider;
     [SerializeField] private GameObject smokePart;
     [SerializeField] private GameObject cannonObject;
+    [SerializeField] private GameObject Loose;
 
-    [SerializeField] public List<AudioClip> audioClips; 
+
+    [SerializeField] public List<AudioClip> audioClips;
 
     [SerializeField] private float minDistance = 0.5f; // security distance
     public LayerMask unitLayer;
@@ -49,6 +52,7 @@ public class CharacterBrain : MonoBehaviour
         CameFromPipe = pipe;
         HasTOuchedFloor = floor; ;
         cannonObject = CanonManager.instance.gameObject;
+        Loose = cannonObject.GetComponent<CannonController>().loose;
         StartCoroutine(Activate());
 
     }
@@ -68,8 +72,10 @@ public class CharacterBrain : MonoBehaviour
             if (HasTOuchedFloor && !Enemy && !Died) rb.velocity = new Vector3(0, 0, 7f);
 
 
-            if(cannonTarget)
+            if (cannonTarget)
             {
+                Loose.SetActive(true);
+
                 Vector3 direction = (cannonObject.transform.position - rb.position).normalized;
                 rb.AddForce(direction * 1f, ForceMode.Acceleration);
                 rb.constraints &= ~RigidbodyConstraints.FreezePositionX;
@@ -99,7 +105,7 @@ public class CharacterBrain : MonoBehaviour
                 HasAlreadyMultiplied = true;
                 for (int i = 0; i < other.gameObject.GetComponentInParent<PortailMovement>().amount - 1; i++)
                 {
-                   
+
                     Vector3 spawnPos = transform.position + new Vector3(Random.Range(-0.5f, 0.5f), 0, Random.Range(-0.5f, 0.5f));
                     GameObject tempGO = Instantiate(gameObject, spawnPos, transform.rotation);
                     Instantiate(smokePart, transform.position, Quaternion.identity);
@@ -120,7 +126,7 @@ public class CharacterBrain : MonoBehaviour
             transform.rotation = Quaternion.Euler(0, -45f, 0);
             CameFromPipe = true;
         }
-        if(Enemy)
+        if (Enemy)
         {
             if (((1 << other.gameObject.layer) & CannonTarget) != 0)
             {
@@ -195,10 +201,10 @@ public class CharacterBrain : MonoBehaviour
         }
         if (((1 << collision.gameObject.layer) & CanonLayer) != 0)
         {
-
-                gameObject.layer = LayerMask.NameToLayer("Dead");
-                collision.gameObject.GetComponent<CanonManager>().OnHit();
-                Die();
+            AudioManager.Instance.PlaySFX(audioClips[1], 0.07f);
+            gameObject.layer = LayerMask.NameToLayer("Dead");
+            collision.gameObject.GetComponent<CanonManager>().OnHit();
+            Die();
 
         }
     }

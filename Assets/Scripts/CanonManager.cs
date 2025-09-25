@@ -30,11 +30,11 @@ public class CanonManager : MonoBehaviour
 
     public void OnHit()
     {
-        Life--;
+       /* Life--;
         transform.DOKill();
         transform.localScale = baseScale;
-        transform.DOPunchScale(new Vector3(0.2f, 0.2f, 0.2f), 0.3f, 1, 0.2f);
-        if (Life < 0)
+        transform.DOPunchScale(new Vector3(0.2f, 0.2f, 0.2f), 0.3f, 1, 0.2f);*/
+       /* if (Life < 0)
         {
 
             ExplosionParticle.gameObject.SetActive(true);
@@ -42,7 +42,7 @@ public class CanonManager : MonoBehaviour
             Parts.SetActive(false);
             capCollider.enabled = false;
             StartCoroutine(WaitBeforePause());
-        }
+        }*/
     }
 
     public IEnumerator WaitBeforePause()

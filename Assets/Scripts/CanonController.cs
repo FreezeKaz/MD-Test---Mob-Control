@@ -14,6 +14,7 @@ public class CannonController : MonoBehaviour
     [SerializeField] public float fireRate = 0.5f;   // Time between shots
     [SerializeField] public Animator animator;
     [SerializeField] public AudioSource sound;
+    [SerializeField] public GameObject particle;
 
     private float nextFireTime = 0f;
 
@@ -26,7 +27,7 @@ public class CannonController : MonoBehaviour
 
         if (Input.GetKey(KeyCode.Space))
         {
-
+            particle.SetActive(true);
             animator.SetBool("Shooting", true);
             sound.enabled = true;
             if (Time.time >= nextFireTime)
@@ -37,6 +38,8 @@ public class CannonController : MonoBehaviour
         }
         else
         {
+            particle.SetActive(false);
+
             animator.SetBool("Shooting", false);
 
             sound.enabled = false;

@@ -12,7 +12,7 @@ public class PortailMovement : MonoBehaviour
     [SerializeField] public bool moving = false;       
 
     [SerializeField] public TextMeshPro multiplier;       
-    [SerializeField] public int amount;       
+    [SerializeField] public int amount;         
 
     private bool right = true;
     void Awake()
@@ -39,16 +39,6 @@ public class PortailMovement : MonoBehaviour
             }
         }
      
-    }
-    void OnTriggerEnter(Collider other)
-    {
-        Debug.Log("YES");
-        if (other.CompareTag("Mob"))
-        {
-            Debug.Log("YES");
-            CharacterBrain temp = other.gameObject.GetComponent<CharacterBrain>();
-            Instantiate(other.gameObject, other.transform.position, other.transform.rotation);
-        }
     }
 
 }

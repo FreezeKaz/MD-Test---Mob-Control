@@ -1,5 +1,7 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using static ToonyColorsPro.ShaderGenerator.Enums;
 using static Unity.VisualScripting.Member;
@@ -27,11 +29,14 @@ public class CharacterBrain : MonoBehaviour
     [SerializeField] private LayerMask DirectionChanger;
     [SerializeField] private LayerMask CanonLayer;
     [SerializeField] private LayerMask WaterLayer;
+    [SerializeField] private LayerMask CanonTarget;
     [SerializeField] private Animator animator;
     [SerializeField] private Material MobMaterial;
     [SerializeField] private SkinnedMeshRenderer render;
     [SerializeField] private Collider myCollider;
     [SerializeField] private GameObject smokePart;
+    [SerializeField] private GameObject number;
+    [SerializeField] private GameObject cannon;
 
     [SerializeField] public List<AudioClip> audioClips;
 
@@ -39,6 +44,7 @@ public class CharacterBrain : MonoBehaviour
     public LayerMask unitLayer;
     public bool HasTOuchedFloor = false;
     public bool HasTouchedDeadZone = false;
+    public bool TargetCannon = false;
     public Vector3 reducedVelocity = Vector3.zero;
     private float nextStepTime;
 
@@ -47,7 +53,7 @@ public class CharacterBrain : MonoBehaviour
         TimeBeforeActivation = time;
         CameFromPipe = pipe;
         HasTOuchedFloor = floor; ;
-
+        cannon = CanonManager.Instance.gameObject;
         StartCoroutine(Activate());
 
     }
@@ -68,7 +74,20 @@ public class CharacterBrain : MonoBehaviour
 
 
 
-            if (Enemy && !Died) rb.velocity = new Vector3(0, 0, -2f);
+            if (Enemy && !Died)
+            {
+
+                rb.velocity = TargetCannon ? new Vector3(rb.velocity.x, 0, rb.velocity.z) : new Vector3(0, 0, -2f);
+                if (TargetCannon)
+                {
+                    rb.constraints &= ~RigidbodyConstraints.FreezePositionX;
+                    Vector3 direction = (cannon.transform.position - rb.position).normalized;
+                    rb.AddForce(direction * 2f, ForceMode.Acceleration);
+                    transform.LookAt(cannon.transform);
+                }
+
+            }
+           
 
             if (Died) rb.velocity = Vector3.zero;
 
@@ -90,8 +109,15 @@ public class CharacterBrain : MonoBehaviour
     {
         if (((1 << other.gameObject.layer) & portalLayer) != 0)
         {
+            if (Enemy)
+            {
+                other.gameObject.GetComponent<PortalAreaManager>().DestroyPortal();
+            }
+
             if (!HasAlreadyMultiplied && CanMultiply && !Enemy)
             {
+                AudioManager.Instance.PlaySFX(audioClips[4], 0.07f, 1.4f);
+                number.SetActive(true);
                 HasAlreadyMultiplied = true;
                 for (int i = 0; i < other.gameObject.GetComponentInParent<PortailMovement>().amount - 1; i++)
                 {
@@ -102,6 +128,9 @@ public class CharacterBrain : MonoBehaviour
                     Rigidbody tempRb = tempGO.GetComponent<Rigidbody>();
                     CharacterBrain tempCB = tempGO.GetComponent<CharacterBrain>();
                     tempCB.Init(0.2f, false, true);
+                    Animator anim = tempCB.animator;
+                    anim.Rebind();     
+                    anim.Update(0f);
                     tempRb.velocity = rb.velocity;
                     Debug.Log(tempRb.velocity);
                     tempCB.reducedVelocity = tempRb.velocity;
@@ -124,6 +153,14 @@ public class CharacterBrain : MonoBehaviour
                 Die();
          
 
+        }
+        if (((1 << other.gameObject.layer) & CanonTarget) != 0)
+        {
+            if (Enemy)
+            {
+               TargetCannon = true;
+
+            }
         }
 
 

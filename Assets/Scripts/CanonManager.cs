@@ -2,16 +2,28 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using Cinemachine;
 
 public class CanonManager : MonoBehaviour
 {
+
+    public static CanonManager Instance { get; private set; }
     private Vector3 baseScale = Vector3.one;
     public GameObject ExplosionParticle;
     public GameObject Parts;
     public SkinnedMeshRenderer mesh;
+    public Animator animator;
     public Collider capCollider;
+    public CinemachineCollisionImpulseSource impulseSource;
     public int Life = 20;
-    // Start is called before the first frame update
+    public bool dead = false;
+
+    void Awake()
+    {
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+        DontDestroyOnLoad(gameObject);
+    }
     private void Start()
     {
         baseScale = transform.localScale;
@@ -25,13 +37,19 @@ public class CanonManager : MonoBehaviour
         transform.DOPunchScale(new Vector3(0.2f, 0.2f, 0.2f), 0.3f, 1, 0.2f);
         if (Life < 0)
         {
-
+            dead = true;
             ExplosionParticle.gameObject.SetActive(true);
-            mesh.enabled = false;
-            Parts.SetActive(false);
+
+            animator.SetBool("Dying", true);
             capCollider.enabled = false;
-            StartCoroutine(WaitBeforePause());
+          
+
         }
+    }
+
+    public void PauseTheGame()
+    {
+        StartCoroutine(WaitBeforePause());
     }
 
     public IEnumerator WaitBeforePause()
